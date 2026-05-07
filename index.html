@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DFASTER - Video Downloader</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="DFASTER">
+    <meta name="description" content="DFASTER - Fastest YouTube video downloader. All qualities, all formats.">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --emerald: #10b981; --emerald-dark: #059669; --emerald-bright: #34d399;
+            --bg-deep: #060d1a; --bg-card: #0f1f35;
+            --bg-glass: rgba(15, 31, 53, 0.85); --border: rgba(16, 185, 129, 0.12);
+        }
+        html, body { height: 100%; width: 100%; overflow: hidden; overscroll-behavior-y: none; font-family: 'Space Grotesk', sans-serif; background-color: var(--bg-deep); color: #e2e8f0; }
+        .flex { display: flex; } .inline-flex { display: inline-flex; }
+        .flex-1 { flex: 1 1 0%; } .flex-col { flex-direction: column; }
+        .flex-wrap { flex-wrap: wrap; } .flex-shrink-0 { flex-shrink: 0; }
+        .items-center { align-items: center; } .items-start { align-items: flex-start; }
+        .justify-center { justify-content: center; } .justify-between { justify-content: space-between; }
+        .gap-1 { gap: 4px; } .gap-2 { gap: 8px; } .gap-3 { gap: 12px; }
+        .mb-1{margin-bottom:4px}.mb-2{margin-bottom:8px}.mb-3{margin-bottom:12px}
+        .mb-4{margin-bottom:16px}.mb-5{margin-bottom:20px}.mb-6{margin-bottom:24px}
+        .mb-8{margin-bottom:32px}.mt-1{margin-top:4px}.mt-2{margin-top:8px}
+        .mt-3{margin-top:12px}.mt-4{margin-top:16px}.mt-20{margin-top:80px}
+        .mr-2{margin-right:8px}.p-4{padding:16px}.p-5{padding:20px}
+        .px-4{padding-left:16px;padding-right:16px}.py-2{padding-top:8px;padding-bottom:8px}
+        .pb-24{padding-bottom:96px}
+        .text-xs{font-size:12px;line-height:16px}.text-sm{font-size:14px;line-height:20px}
+        .text-base{font-size:16px;line-height:24px}.text-lg{font-size:18px;line-height:28px}
+        .text-2xl{font-size:24px;line-height:32px}.text-4xl{font-size:36px;line-height:40px}
+        .text-10{font-size:10px}.text-11{font-size:11px}.text-9{font-size:9px}
+        .font-bold{font-weight:700}.font-semibold{font-weight:600}
+        .font-mono{font-family:'Space Mono',monospace}
+        .leading-relaxed{line-height:1.625}.leading-snug{line-height:1.375}
+        .tracking-widest{letter-spacing:0.1em}.uppercase{text-transform:uppercase}
+        .truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .text-center{text-align:center}.w-full{width:100%}.min-w-0{min-width:0}
+        .absolute{position:absolute}.fixed{position:fixed}.relative{position:relative}
+        .inset-0{top:0;right:0;bottom:0;left:0}
+        .overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}
+        .opacity-20{opacity:0.2}
+        .text-white{color:#fff}.text-slate-200{color:#e2e8f0}.text-slate-300{color:#cbd5e1}
+        .text-slate-400{color:#94a3b8}.text-slate-500{color:#64748b}.text-slate-600{color:#475569}
+        .text-emerald-400{color:#34d399}.text-amber-400{color:#fbbf24}.text-red-400{color:#f87171}
+        .bg-slate-800{background-color:#1e293b}
+        .space-y-2>*+*{margin-top:8px}.space-y-3>*+*{margin-top:12px}.space-y-4>*+*{margin-top:16px}
+        .hover-emerald:hover{color:var(--emerald-bright)}.hover-red:hover{color:#f87171}
+        .hover-slate:hover{color:#cbd5e1}
+
+        .app-container {
+            width:100%;height:100%;max-width:28rem;margin:0 auto;
+            display:flex;flex-direction:column;position:relative;
+            background:linear-gradient(160deg,#0a1628 0%,#060d1a 100%);
+            box-shadow:0 0 80px rgba(16,185,129,0.08),0 25px 50px rgba(0,0,0,0.5);
+            overflow:hidden;
+        }
+        .app-container::before {
+            content:'';position:absolute;inset:0;
+            background-image:linear-gradient(rgba(16,185,129,0.03) 1px,transparent 1px),
+                             linear-gradient(90deg,rgba(16,185,129,0.03) 1px,transparent 1px);
+            background-size:32px 32px;pointer-events:none;z-index:0;
+        }
+        @media(min-width:640px){.app-container{border-left:1px solid rgba(16,185,129,0.1);border-right:1px solid rgba(16,185,129,0.1);}}
+        .glass-box{background:var(--bg-glass);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:14px;}
+        .smooth{transition:all 0.25s cubic-bezier(0.4,0,0.2,1);}
+        .hide{display:none!important;}
+
+        .app-header{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:rgba(6,13,26,0.95);border-bottom:1px solid var(--border);z-index:10;position:relative;}
+        .logo-wrap{display:flex;align-items:center;gap:10px;}
+        .logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#059669,#10b981);border-radius:9px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px rgba(16,185,129,0.35);}
+        .logo-text{font-family:'Space Mono',monospace;font-weight:700;font-size:20px;letter-spacing:2px;background:linear-gradient(90deg,#10b981,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+
+        .input-wrap{display:flex;align-items:center;background:rgba(15,31,53,0.9);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color 0.2s;margin-bottom:16px;}
+        .input-wrap:focus-within{border-color:rgba(16,185,129,0.45);box-shadow:0 0 0 3px rgba(16,185,129,0.08);}
+        input[type="text"]{width:100%;background:transparent;color:#e2e8f0;padding:14px 16px;outline:none;font-size:14px;font-family:'Space Grotesk',sans-serif;border:none;}
+        input::placeholder{color:#334155;}
+
+        .btn-primary{width:100%;background:linear-gradient(135deg,#059669,#10b981);color:white;font-weight:700;font-family:'Space Grotesk',sans-serif;padding:15px;border-radius:14px;border:none;cursor:pointer;display:flex;justify-content:center;align-items:center;gap:8px;font-size:15px;letter-spacing:0.5px;transition:all 0.2s;box-shadow:0 4px 20px rgba(16,185,129,0.3);}
+        .btn-primary:hover{background:linear-gradient(135deg,#10b981,#34d399);transform:translateY(-1px);box-shadow:0 6px 25px rgba(16,185,129,0.4);}
+        .btn-primary:active{transform:translateY(0);}
+        .btn-primary:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+        .icon-btn{padding:10px 14px;background:none;border:none;cursor:pointer;color:#475569;transition:color 0.2s;font-size:16px;}
+        .icon-btn:hover{color:var(--emerald);}
+        .back-btn{display:flex;align-items:center;gap:8px;color:#94a3b8;background:none;border:none;cursor:pointer;font-size:14px;font-family:'Space Grotesk',sans-serif;font-weight:600;padding:0;margin-bottom:16px;transition:color 0.2s;}
+        .back-btn:hover{color:var(--emerald-bright);}
+        .back-btn i{font-size:12px;}
+
+        .format-card{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;background:rgba(15,31,53,0.75);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all 0.2s;margin-bottom:8px;}
+        .format-card:hover{background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.3);transform:translateX(2px);}
+        .format-card:active{transform:scale(0.98);}
+        .format-card.legacy{border-left:3px solid #f59e0b;}
+        .format-card.audio-card{border-left:3px solid #6366f1;}
+        .format-card.video-only-card{border-left:3px solid #64748b;}
+
+        .quality-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;letter-spacing:0.5px;text-transform:uppercase;}
+        .badge-hd{background:rgba(16,185,129,0.15);color:var(--emerald-bright);border:1px solid rgba(16,185,129,0.3);}
+        .badge-4k{background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.3);}
+        .badge-sd{background:rgba(100,116,139,0.15);color:#94a3b8;border:1px solid rgba(100,116,139,0.2);}
+        .badge-audio{background:rgba(99,102,241,0.1);color:#818cf8;border:1px solid rgba(99,102,241,0.2);}
+
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s ease;}
+        .modal-sheet{width:100%;max-width:28rem;background:#0a1628;border-top:1px solid var(--border);border-radius:20px 20px 0 0;padding:24px 20px 36px;animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+        .modal-handle{width:36px;height:4px;background:#1e3a5f;border-radius:2px;margin:0 auto 20px;}
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+        .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(15,31,53,0.97);border:1px solid var(--border);color:white;padding:10px 18px;border-radius:50px;font-size:12px;font-weight:600;white-space:nowrap;z-index:200;pointer-events:none;display:flex;align-items:center;gap:8px;box-shadow:0 8px 32px rgba(0,0,0,0.4);animation:toastIn 0.3s ease;}
+        @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+        ::-webkit-scrollbar{width:4px;}
+        ::-webkit-scrollbar-track{background:transparent;}
+        ::-webkit-scrollbar-thumb{background:#1e3a5f;border-radius:10px;}
+
+        nav{flex-shrink:0;}
+        .nav-bar{display:flex;background:rgba(6,13,26,0.97);border-top:1px solid var(--border);z-index:10;position:relative;}
+        .nav-btn{display:flex;flex-direction:column;align-items:center;padding:10px 8px;flex:1;background:none;border:none;cursor:pointer;color:#334155;transition:color 0.2s;font-family:'Space Grotesk',sans-serif;position:relative;}
+        .nav-btn i{font-size:20px;margin-bottom:4px;}
+        .nav-btn.active{color:var(--emerald);}
+        .nav-btn:hover:not(.active){color:#64748b;}
+        .nav-btn span{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+
+        .section-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--emerald);margin-bottom:10px;padding-left:2px;display:flex;align-items:center;gap:6px;}
+        .thumb-wrap{width:100%;aspect-ratio:16/9;background:#0a1628;border-radius:12px;overflow:hidden;position:relative;margin-bottom:14px;}
+        .thumb-wrap img{width:100%;height:100%;object-fit:cover;opacity:0.8;}
+        .thumb-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .spin{animation:spin 0.8s linear infinite;display:inline-block;}
+
+        .toggle-group{display:flex;background:rgba(15,31,53,0.8);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+        .toggle-opt{flex:1;padding:10px 6px;text-align:center;font-size:12px;font-weight:600;cursor:pointer;color:#475569;transition:all 0.2s;font-family:'Space Grotesk',sans-serif;}
+        .toggle-opt.selected{background:linear-gradient(135deg,#059669,#10b981);color:white;}
+
+        .install-banner{background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(99,102,241,0.1));border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;}
+        .install-icon{width:36px;height:36px;border-radius:10px;background:#059669;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:white;font-size:14px;}
+        .settings-row{display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;padding:3px 0;}
+        .settings-row span:last-child{color:#e2e8f0;font-family:'Space Mono',monospace;font-size:11px;}
+        .hero-icon-wrap{width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(5,150,105,0.2),rgba(16,185,129,0.1));border:1px solid rgba(16,185,129,0.2);margin:0 auto 16px;}
+
+        .error-box{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:16px;margin-top:12px;display:none;}
+        .error-box.show{display:block;}
+
+        .progress-wrap{margin-top:8px;display:none;}
+        .progress-wrap.show{display:block;}
+        .progress-track{width:100%;height:3px;background:rgba(16,185,129,0.1);border-radius:2px;overflow:hidden;}
+        .progress-fill{height:100%;background:linear-gradient(90deg,#059669,#34d399);border-radius:2px;animation:progAnim 2s ease-in-out infinite;}
+        @keyframes progAnim{0%{width:5%}60%{width:85%}100%{width:95%}}
+        .status-text{font-size:10px;color:#64748b;text-align:center;margin-top:6px;min-height:14px;}
+    </style>
+</head>
+<body style="display:flex;align-items:center;justify-content:center;">
+<div class="app-container" id="app">
+
+    <header class="app-header">
+        <div class="logo-wrap">
+            <div class="logo-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M11 2L4 11H9.5L9 18L16 9H10.5L11 2Z" fill="white" stroke="white" stroke-width="0.5" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <span class="logo-text">DFASTER</span>
+        </div>
+        <button onclick="goTo('settingsView')" class="icon-btn" aria-label="Settings">
+            <i class="fa-solid fa-gear"></i>
+        </button>
+    </header>
+
+    <main class="flex-1 overflow-y-auto relative" style="padding:20px;z-index:1;">
+
+        <!-- HOME VIEW -->
+        <div id="homeView" class="app-view flex flex-col" style="min-height:100%;justify-content:center;padding-bottom:20px;">
+
+            <div id="installBanner" class="install-banner mb-6 hide" onclick="triggerInstall()">
+                <div class="install-icon"><i class="fa-solid fa-mobile-screen"></i></div>
+                <div class="flex-1">
+                    <p class="text-10 font-bold text-emerald-400">Install DFASTER App</p>
+                    <p class="text-9 text-slate-400" style="margin-top:2px;">Add to home screen and share from YouTube directly</p>
+                </div>
+                <i class="fa-solid fa-plus text-emerald-400" style="font-size:14px;"></i>
+            </div>
+
+            <div class="text-center mb-8">
+                <div class="hero-icon-wrap">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <path d="M16 4L6 18H13.5L13 28L24 14H16.5L16 4Z" fill="#10b981"/>
+                    </svg>
+                </div>
+                <h2 class="text-lg font-bold text-slate-200 mb-1">Download Any Video</h2>
+                <p class="text-sm text-slate-500">Paste a YouTube link to get all formats</p>
+            </div>
+
+            <div class="input-wrap">
+                <input type="text" id="videoLink" placeholder="https://youtube.com/watch?v=..."
+                    autocomplete="off" autocorrect="off" spellcheck="false"
+                    onkeydown="if(event.key==='Enter') fetchMetadata()">
+                <button onclick="pasteLink()" class="icon-btn" title="Paste">
+                    <i class="fa-solid fa-clipboard"></i>
+                </button>
+                <button onclick="clearLink()" class="icon-btn" title="Clear">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </button>
+            </div>
+
+            <button id="fetchBtn" onclick="fetchMetadata()" class="btn-primary mb-2">
+                <span id="btnText">Find Video</span>
+                <i id="btnIcon" class="fa-solid fa-magnifying-glass"></i>
+                <i id="loader" class="fa-solid fa-spinner spin hide"></i>
+            </button>
+
+            <div class="progress-wrap" id="progressWrap">
+                <div class="progress-track"><div class="progress-fill"></div></div>
+                <p class="status-text" id="statusMsg">Connecting...</p>
+            </div>
+
+            <div class="error-box" id="errorBox">
+                <p style="font-size:12px;font-weight:700;color:#f87171;margin-bottom:6px;">
+                    <i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i>Could not load video
+                </p>
+                <p style="font-size:11px;color:#94a3b8;line-height:1.6;" id="errorDetail">Please try again.</p>
+            </div>
+
+            <div class="glass-box p-4 mt-4">
+                <p class="text-10 text-slate-500 font-bold uppercase tracking-widest mb-3">Supported Formats</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="quality-badge badge-4k">4K 2160p</span>
+                    <span class="quality-badge badge-hd">1080p HD</span>
+                    <span class="quality-badge badge-hd">720p HD</span>
+                    <span class="quality-badge badge-sd">480p SD</span>
+                    <span class="quality-badge badge-sd">360p</span>
+                    <span class="quality-badge badge-sd">144p</span>
+                    <span class="quality-badge badge-sd" style="background:rgba(251,191,36,0.1);color:#fbbf24;border-color:rgba(251,191,36,0.2);">3GP</span>
+                    <span class="quality-badge badge-audio">MP3</span>
+                    <span class="quality-badge badge-audio">M4A</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- DOWNLOAD VIEW -->
+        <div id="downloadView" class="app-view hide pb-24">
+            <button onclick="goTo('homeView')" class="back-btn">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </button>
+            <div class="glass-box p-4 mb-5">
+                <div class="thumb-wrap">
+                    <img id="vidThumb" src="" alt="Thumbnail" onerror="this.style.opacity='0'">
+                    <div class="thumb-play">
+                        <div style="width:52px;height:52px;background:rgba(0,0,0,0.6);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,0.2);">
+                            <i class="fa-solid fa-play text-white" style="font-size:18px;margin-left:3px;"></i>
+                        </div>
+                    </div>
+                </div>
+                <h3 id="vidTitle" class="font-semibold text-slate-200 text-sm leading-snug mb-2">Loading...</h3>
+                <div class="flex items-center gap-2">
+                    <span class="quality-badge badge-hd" id="streamCount">0 streams</span>
+                    <span class="text-10 text-slate-500" id="vidDuration"></span>
+                </div>
+            </div>
+            <div id="videoSection">
+                <p class="section-label"><i class="fa-solid fa-film"></i> Video Formats</p>
+                <div id="videoFormatsContainer"></div>
+            </div>
+            <div id="audioSection" class="mt-4">
+                <p class="section-label" style="color:#818cf8;"><i class="fa-solid fa-music"></i> Audio Only</p>
+                <div id="audioFormatsContainer"></div>
+            </div>
+            <p class="text-10 text-slate-600 text-center mt-4 px-4">Streams marked <span class="text-slate-500">no audio</span> are video-only (DASH) format.</p>
+        </div>
+
+        <!-- QUEUE VIEW -->
+        <div id="historyView" class="app-view hide pb-24">
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-lg font-bold text-slate-200">Download Queue</h2>
+                <button onclick="clearQueue()" style="font-size:11px;color:#64748b;background:none;border:none;cursor:pointer;" class="hover-red">Clear All</button>
+            </div>
+            <div id="downloadList">
+                <div id="emptyMsg" class="text-center mt-20">
+                    <div class="text-4xl mb-3 opacity-20">📥</div>
+                    <p class="text-sm text-slate-500">No downloads yet</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SETTINGS VIEW -->
+        <div id="settingsView" class="app-view hide pb-24">
+            <button onclick="goTo('homeView')" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back</button>
+            <h2 class="text-lg font-bold text-slate-200 mb-5">Settings</h2>
+            <div class="space-y-4">
+                <div class="glass-box p-5">
+                    <p class="text-emerald-400 font-semibold text-xs uppercase tracking-widest mb-1">Default Quality</p>
+                    <p class="text-11 text-slate-500 mb-4">What happens when you tap a format?</p>
+                    <div class="toggle-group" id="qualityToggle">
+                        <div class="toggle-opt selected" data-val="ask" onclick="setQuality('ask')">Always Ask</div>
+                        <div class="toggle-opt" data-val="direct" onclick="setQuality('direct')">Auto Start</div>
+                    </div>
+                </div>
+                <div class="glass-box p-5">
+                    <p class="text-emerald-400 font-semibold text-xs uppercase tracking-widest mb-1">Preferred Resolution</p>
+                    <p class="text-11 text-slate-500 mb-4">Auto-highlight this quality when available</p>
+                    <div class="toggle-group" id="resToggle">
+                        <div class="toggle-opt" data-val="highest" onclick="setRes('highest')">Highest</div>
+                        <div class="toggle-opt selected" data-val="720p" onclick="setRes('720p')">720p</div>
+                        <div class="toggle-opt" data-val="480p" onclick="setRes('480p')">480p</div>
+                        <div class="toggle-opt" data-val="lowest" onclick="setRes('lowest')">Lowest</div>
+                    </div>
+                </div>
+                <div class="glass-box p-5">
+                    <p class="text-emerald-400 font-semibold text-xs uppercase tracking-widest mb-1">Android Share Integration</p>
+                    <p class="text-11 text-slate-500 mb-4">Install DFASTER as a PWA to appear in YouTube share sheet</p>
+                    <button onclick="triggerInstall()" class="btn-primary" style="padding:11px;">
+                        <i class="fa-solid fa-mobile-screen-button"></i> Install App
+                    </button>
+                    <p class="text-10 text-slate-600 mt-3 text-center">After installing: Open YouTube, tap Share, then select DFASTER</p>
+                </div>
+                <div class="glass-box p-5">
+                    <p class="text-emerald-400 font-semibold text-xs uppercase tracking-widest mb-3">About</p>
+                    <div class="space-y-2">
+                        <div class="settings-row"><span>Version</span><span class="text-emerald-400">3.0.0</span></div>
+                        <div class="settings-row"><span>Engine</span><span>YouTube InnerTube API</span></div>
+                        <div class="settings-row"><span>Backend</span><span>Vercel Serverless</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABOUT VIEW -->
+        <div id="aboutView" class="app-view hide pb-24">
+            <div class="text-center mb-8" style="margin-top:16px;">
+                <div class="logo-wrap justify-center mb-3">
+                    <div class="logo-icon" style="width:48px;height:48px;border-radius:14px;">
+                        <svg width="26" height="26" viewBox="0 0 20 20" fill="none">
+                            <path d="M11 2L4 11H9.5L9 18L16 9H10.5L11 2Z" fill="white" stroke="white" stroke-width="0.5" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+                <span class="logo-text text-2xl">DFASTER</span>
+                <p class="text-slate-500 text-xs mt-1">Direct Media System</p>
+            </div>
+            <div class="glass-box p-5 text-sm text-slate-400 leading-relaxed space-y-3">
+                <p>DFASTER uses YouTube's own <strong class="text-emerald-400">InnerTube API</strong> directly through a serverless backend, guaranteeing real streams every time.</p>
+                <p>All streams are original YouTube quality. No compression, no re-encoding.</p>
+                <p>This app runs entirely in your browser with a lightweight serverless backend. No data collection, no tracking.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <nav>
+        <div class="nav-bar">
+            <button class="nav-btn active" id="navHome" onclick="goTo('homeView')">
+                <i class="fa-solid fa-house"></i><span>Home</span>
+            </button>
+            <button class="nav-btn" id="navHistory" onclick="goTo('historyView')" style="position:relative;">
+                <i class="fa-solid fa-cloud-arrow-down"></i><span>Queue</span>
+                <span id="badge" class="hide" style="position:absolute;top:6px;right:calc(50% - 22px);background:var(--emerald);color:white;font-size:8px;width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;"></span>
+            </button>
+            <button class="nav-btn" id="navAbout" onclick="goTo('aboutView')">
+                <i class="fa-solid fa-circle-info"></i><span>About</span>
+            </button>
+        </div>
+    </nav>
+</div>
+
+<!-- DOWNLOAD MODAL -->
+<div id="dlModal" class="modal-overlay hide" onclick="closeDlModal(event)">
+    <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <h3 class="font-bold text-slate-200 text-base mb-1" id="dlModalTitle">1080p HD Quality</h3>
+        <p class="text-xs text-slate-500 mb-5" id="dlModalMeta">MP4</p>
+        <button onclick="downloadDirect()" class="btn-primary mb-3">
+            <i class="fa-solid fa-download"></i> Download / Open
+        </button>
+        <button onclick="copyStreamLink()" class="btn-primary mb-4" style="background:rgba(15,31,53,0.9);border:1px solid var(--border);box-shadow:none;">
+            <i class="fa-solid fa-link"></i> Copy Direct Link
+        </button>
+        <div class="glass-box p-4 mb-3">
+            <p class="text-10 text-slate-500 font-semibold uppercase tracking-widest mb-2">
+                <i class="fa-solid fa-lightbulb" style="color:#fbbf24;margin-right:4px;"></i>Download Tips
+            </p>
+            <p class="text-11 text-slate-400 leading-relaxed">
+                <strong class="text-slate-300">Android Chrome:</strong> Tap Download, video opens, tap the 3-dot menu, choose Download.<br>
+                <strong class="text-slate-300">Desktop:</strong> Right-click the video, choose Save video as.<br>
+                Or use <strong class="text-slate-300">Copy Link</strong> and paste into your download manager.
+            </p>
+        </div>
+        <button onclick="closeDlModal()" style="width:100%;color:#64748b;font-size:14px;padding:8px;background:none;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;" class="smooth hover-slate">Cancel</button>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div id="toastEl" class="toast hide">
+    <i class="fa-solid fa-circle-check" style="color:#34d399;"></i>
+    <span id="toastMsg">Ready</span>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let currentStreamUrl = '';
+let currentFilename = '';
+let queueCount = 0;
+let deferredInstallPrompt = null;
+
+// ============================================================
+// PWA
+// ============================================================
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    document.getElementById('installBanner').classList.remove('hide');
+});
+
+function triggerInstall() {
+    if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then(c => {
+            if (c.outcome === 'accepted') showToast('App installed! Check your home screen');
+            deferredInstallPrompt = null;
+            document.getElementById('installBanner').classList.add('hide');
+        });
+    } else {
+        showToast('Open browser menu and tap "Add to Home Screen"');
+    }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    loadSettings();
+    const params = new URLSearchParams(window.location.search);
+    const shared = params.get('url') || params.get('text') || params.get('title') || '';
+    if (shared && (shared.includes('youtube.com') || shared.includes('youtu.be'))) {
+        document.getElementById('videoLink').value = shared.trim();
+        setTimeout(() => fetchMetadata(), 300);
+    }
+});
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+const views = ['homeView','downloadView','historyView','settingsView','aboutView'];
+const navMap = { homeView:'navHome', historyView:'navHistory', aboutView:'navAbout' };
+
+function goTo(viewId) {
+    views.forEach(id => document.getElementById(id).classList.add('hide'));
+    document.getElementById(viewId).classList.remove('hide');
+    ['navHome','navHistory','navAbout'].forEach(n => document.getElementById(n).classList.remove('active'));
+    if (navMap[viewId]) document.getElementById(navMap[viewId]).classList.add('active');
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+function loadSettings() {
+    applyToggle('qualityToggle', localStorage.getItem('dfaster_quality') || 'ask');
+    applyToggle('resToggle', localStorage.getItem('dfaster_res') || '720p');
+}
+function applyToggle(groupId, val) {
+    const g = document.getElementById(groupId);
+    if (!g) return;
+    g.querySelectorAll('.toggle-opt').forEach(o => o.classList.toggle('selected', o.dataset.val === val));
+}
+function setQuality(val) { localStorage.setItem('dfaster_quality', val); applyToggle('qualityToggle', val); showToast('Settings saved'); }
+function setRes(val) { localStorage.setItem('dfaster_res', val); applyToggle('resToggle', val); showToast('Settings saved'); }
+
+// ============================================================
+// URL PARSING
+// ============================================================
+function extractVideoId(url) {
+    if (!url) return null;
+    url = url.trim();
+    const patterns = [
+        /[?&]v=([a-zA-Z0-9_-]{11})/,
+        /youtu\.be\/([a-zA-Z0-9_-]{11})/,
+        /\/shorts\/([a-zA-Z0-9_-]{11})/,
+        /\/embed\/([a-zA-Z0-9_-]{11})/,
+        /\/live\/([a-zA-Z0-9_-]{11})/,
+    ];
+    for (const p of patterns) {
+        const m = url.match(p);
+        if (m) return m[1];
+    }
+    if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
+    return null;
+}
+
+// ============================================================
+// FETCH — Our own Vercel API
+// ============================================================
+async function fetchMetadata() {
+    const rawUrl = document.getElementById('videoLink').value.trim();
+    document.getElementById('errorBox').classList.remove('show');
+
+    if (!rawUrl) { showToast('Please paste a YouTube link first'); return; }
+    const videoId = extractVideoId(rawUrl);
+    if (!videoId) { showToast('Invalid link. Try youtube.com/watch?v=... or youtu.be/...'); return; }
+
+    // Loading state
+    const btn = document.getElementById('fetchBtn');
+    btn.disabled = true;
+    document.getElementById('btnText').textContent = 'Loading...';
+    document.getElementById('btnIcon').classList.add('hide');
+    document.getElementById('loader').classList.remove('hide');
+    document.getElementById('progressWrap').classList.add('show');
+    document.getElementById('statusMsg').textContent = 'Fetching video info...';
+
+    try {
+        const resp = await fetch('/api/streams?id=' + videoId);
+        const data = await resp.json();
+
+        if (!resp.ok || data.error) {
+            throw new Error(data.error || 'Server error ' + resp.status);
+        }
+
+        processStreams(data, videoId);
+
+    } catch(e) {
+        console.error(e);
+        document.getElementById('errorDetail').textContent = e.message || 'Something went wrong. Please try again.';
+        document.getElementById('errorBox').classList.add('show');
+        showToast('Could not load video');
+    } finally {
+        btn.disabled = false;
+        document.getElementById('btnText').textContent = 'Find Video';
+        document.getElementById('btnIcon').classList.remove('hide');
+        document.getElementById('loader').classList.add('hide');
+        document.getElementById('progressWrap').classList.remove('show');
+        document.getElementById('statusMsg').textContent = '';
+    }
+}
+
+// ============================================================
+// PROCESS & RENDER
+// ============================================================
+function formatSize(bytes) {
+    if (!bytes || bytes === 0) return 'N/A';
+    const mb = bytes / (1024 * 1024);
+    return mb < 1 ? (bytes/1024).toFixed(0) + ' KB' : mb.toFixed(1) + ' MB';
+}
+
+function formatDuration(seconds) {
+    if (!seconds) return '';
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    if (h > 0) return h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    return m + ':' + String(s).padStart(2,'0');
+}
+
+function getQualityNum(quality) {
+    const m = String(quality).match(/(\d+)/);
+    return m ? parseInt(m[1]) : 0;
+}
+
+function processStreams(data, videoId) {
+    document.getElementById('vidTitle').textContent = data.title || 'Unknown Title';
+    document.getElementById('vidThumb').src = data.thumbnail || 'https://i.ytimg.com/vi/' + videoId + '/hqdefault.jpg';
+    document.getElementById('vidDuration').textContent = formatDuration(data.duration);
+
+    const vs = (data.videoStreams || []).map(s => ({
+        ...s, qualityNum: getQualityNum(s.quality), size: formatSize(s.size)
+    }));
+    const as = (data.audioStreams || []).map(s => ({ ...s, size: formatSize(s.size) }));
+
+    document.getElementById('streamCount').textContent = (vs.length + as.length) + ' streams';
+    renderVideoFormats(vs);
+    renderAudioFormats(as);
+    goTo('downloadView');
+}
+
+function getQualityBadge(n) {
+    if (n >= 2160) return '<span class="quality-badge badge-4k">4K</span>';
+    if (n >= 1440) return '<span class="quality-badge badge-4k">2K</span>';
+    if (n >= 1080) return '<span class="quality-badge badge-hd">HD+</span>';
+    if (n >= 720)  return '<span class="quality-badge badge-hd">HD</span>';
+    return '<span class="quality-badge badge-sd">SD</span>';
+}
+
+function renderVideoFormats(streams) {
+    const c = document.getElementById('videoFormatsContainer');
+    if (!streams.length) { c.innerHTML = '<p class="text-xs text-slate-600" style="padding:8px 0;">No video streams available</p>'; return; }
+    c.innerHTML = streams.map(s => {
+        const legacy = s.ext === '3gp' || s.qualityNum <= 144;
+        const cls = !s.hasAudio ? 'format-card video-only-card' : (legacy ? 'format-card legacy' : 'format-card');
+        const badge = getQualityBadge(s.qualityNum);
+        const noAudio = !s.hasAudio ? '<span class="text-9 text-slate-500 bg-slate-800" style="padding:2px 6px;border-radius:5px;margin-left:4px;">no audio</span>' : '';
+        const fps = s.fps ? '<span class="text-9 text-slate-600" style="margin-left:4px;">' + s.fps + 'fps</span>' : '';
+        const enc = encodeURIComponent(s.url);
+        const fn = 'DFASTER_' + s.quality + '.' + s.ext;
+        return '<div class="' + cls + '" onclick="openDlModal(\'' + escStr(s.quality + ' (' + s.ext.toUpperCase() + ')') + '\',\'' + escStr(s.size + ' ' + (!s.hasAudio ? 'Video only' : 'Video + Audio')) + '\',\'' + enc + '\',\'' + escStr(fn) + '\')">' +
+            '<div class="flex items-center gap-3 flex-1 min-w-0"><div style="width:36px;height:36px;background:rgba(16,185,129,0.08);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-clapperboard" style="color:' + (!s.hasAudio ? '#64748b' : '#10b981') + ';font-size:13px;"></i></div>' +
+            '<div class="min-w-0"><div class="flex items-center flex-wrap gap-1"><span class="font-bold text-sm ' + (legacy ? 'text-amber-400' : 'text-slate-200') + '">' + s.quality + '</span>' + fps + noAudio + '</div>' +
+            '<span class="text-10 text-slate-500">' + s.ext.toUpperCase() + ' format</span></div></div>' +
+            '<div class="flex items-center gap-2 flex-shrink-0">' + badge + '<span class="text-xs text-slate-400 font-mono">' + s.size + '</span><i class="fa-solid fa-chevron-right" style="font-size:11px;color:#334155;"></i></div></div>';
+    }).join('');
+}
+
+function renderAudioFormats(streams) {
+    const c = document.getElementById('audioFormatsContainer');
+    if (!streams.length) { c.innerHTML = '<p class="text-xs text-slate-600" style="padding:8px 0;">No audio streams available</p>'; return; }
+    c.innerHTML = streams.map((s, i) => {
+        const label = i === 0 ? 'Best Quality' : 'Standard ' + i;
+        const enc = encodeURIComponent(s.url);
+        const fn = 'DFASTER_Audio_' + s.quality + '.' + s.ext;
+        return '<div class="format-card audio-card" onclick="openDlModal(\'' + escStr(label + ' Audio (' + s.quality + ')') + '\',\'' + escStr(s.size + ' ' + s.ext.toUpperCase() + ' Audio') + '\',\'' + enc + '\',\'' + escStr(fn) + '\')">' +
+            '<div class="flex items-center gap-3 flex-1 min-w-0"><div style="width:36px;height:36px;background:rgba(99,102,241,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-headphones" style="color:#818cf8;font-size:13px;"></i></div>' +
+            '<div><div class="font-bold text-sm text-slate-200">' + label + '</div><span class="text-10 text-slate-500">' + s.quality + ' ' + s.ext.toUpperCase() + '</span></div></div>' +
+            '<div class="flex items-center gap-2 flex-shrink-0"><span class="quality-badge badge-audio">AUDIO</span><span class="text-xs text-slate-400 font-mono">' + s.size + '</span><i class="fa-solid fa-chevron-right" style="font-size:11px;color:#334155;"></i></div></div>';
+    }).join('');
+}
+
+function escStr(s) {
+    return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+function openDlModal(title, meta, encodedUrl, filename) {
+    currentStreamUrl = decodeURIComponent(encodedUrl);
+    currentFilename = filename;
+    document.getElementById('dlModalTitle').textContent = title;
+    document.getElementById('dlModalMeta').textContent = meta;
+    document.getElementById('dlModal').classList.remove('hide');
+    if ((localStorage.getItem('dfaster_quality') || 'ask') === 'direct') setTimeout(() => downloadDirect(), 200);
+}
+
+function closeDlModal(e) {
+    if (!e || e.target === document.getElementById('dlModal')) {
+        document.getElementById('dlModal').classList.add('hide');
+    }
+}
+
+function downloadDirect() {
+    if (!currentStreamUrl) return;
+    const a = document.createElement('a');
+    a.href = currentStreamUrl; a.download = currentFilename;
+    a.target = '_blank'; a.rel = 'noopener noreferrer';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    addToHistory(document.getElementById('dlModalTitle').textContent, currentStreamUrl, currentFilename);
+    closeDlModal();
+    showToast('Download started');
+}
+
+function copyStreamLink() {
+    if (!currentStreamUrl) return;
+    navigator.clipboard.writeText(currentStreamUrl)
+        .then(() => showToast('Link copied! Paste in browser or IDM'))
+        .catch(() => {
+            const ta = document.createElement('textarea');
+            ta.value = currentStreamUrl; ta.style.cssText = 'position:fixed;opacity:0;';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            showToast('Link copied!');
+        });
+}
+
+// ============================================================
+// QUEUE
+// ============================================================
+function addToHistory(name, url, filename) {
+    queueCount++;
+    const badge = document.getElementById('badge');
+    badge.textContent = queueCount; badge.classList.remove('hide');
+    const list = document.getElementById('downloadList');
+    const empty = document.getElementById('emptyMsg');
+    if (empty) empty.style.display = 'none';
+    const id = 'dl_' + Date.now();
+    const div = document.createElement('div');
+    div.id = id; div.className = 'glass-box p-4 mb-3';
+    div.style.borderLeft = '3px solid var(--emerald)';
+    div.innerHTML = '<div class="flex justify-between items-start gap-3"><div class="flex-1 min-w-0"><p class="text-sm font-semibold text-slate-200 truncate">' + name + '</p><p class="text-10 text-emerald-400 mt-1"><i class="fa-solid fa-circle-check" style="margin-right:4px;"></i>Link opened</p></div>' +
+        '<div class="flex gap-2 flex-shrink-0"><button onclick="reDownload(\'' + encodeURIComponent(url) + '\',\'' + escStr(filename) + '\')" style="font-size:10px;background:rgba(5,150,105,0.15);color:#34d399;padding:4px 8px;border-radius:8px;border:none;cursor:pointer;"><i class="fa-solid fa-rotate-right" style="margin-right:3px;"></i>Again</button>' +
+        '<button onclick="removeItem(\'' + id + '\')" style="font-size:10px;color:#475569;padding:4px;background:none;border:none;cursor:pointer;" class="hover-red"><i class="fa-solid fa-xmark"></i></button></div></div>';
+    list.insertBefore(div, list.firstChild);
+}
+
+function reDownload(enc, fn) {
+    const a = document.createElement('a');
+    a.href = decodeURIComponent(enc); a.download = fn;
+    a.target = '_blank'; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    showToast('Re-opening link');
+}
+
+function removeItem(id) {
+    const el = document.getElementById(id);
+    if (el) { el.style.opacity='0'; el.style.transform='translateX(20px)'; el.style.transition='all 0.25s ease'; setTimeout(()=>el.remove(),250); }
+    queueCount = Math.max(0, queueCount - 1);
+    const badge = document.getElementById('badge');
+    if (queueCount === 0) badge.classList.add('hide'); else badge.textContent = queueCount;
+}
+
+function clearQueue() {
+    document.getElementById('downloadList').innerHTML = '<div id="emptyMsg" class="text-center mt-20"><div class="text-4xl mb-3 opacity-20">📥</div><p class="text-sm text-slate-500">No downloads yet</p></div>';
+    queueCount = 0; document.getElementById('badge').classList.add('hide');
+    showToast('Queue cleared');
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+async function pasteLink() {
+    try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('videoLink').value = text.trim();
+        showToast('Link pasted');
+    } catch(e) { showToast('Please paste manually'); }
+}
+
+function clearLink() {
+    document.getElementById('videoLink').value = '';
+    document.getElementById('videoLink').focus();
+    document.getElementById('errorBox').classList.remove('show');
+}
+
+let toastTimer = null;
+function showToast(msg) {
+    const el = document.getElementById('toastEl');
+    document.getElementById('toastMsg').textContent = msg;
+    el.classList.remove('hide');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.add('hide'), 3500);
+}
+</script>
+</body>
+</html>
